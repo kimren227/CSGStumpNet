@@ -44,7 +44,7 @@ class CSGStump(nn.Module):
         else:
             with torch.no_grad():
                 # use soft min to distribute gradients
-                weights = torch.softmax(occupancy_pre_intersection * (-20), dim=-2)
+                weights = torch.softmax(occupancy_pre_intersection * (-40), dim=-2)
             intersection_node_occupancies = torch.sum(weights * occupancy_pre_intersection, dim=-2) # [BMC]
 
         # calculate union
@@ -55,7 +55,7 @@ class CSGStump(nn.Module):
         else:
             with torch.no_grad():
                 # use soft max to distribute gradients
-                weights = torch.softmax(occupancy_pre_union * (20), dim=-1)
+                weights = torch.softmax(occupancy_pre_union * (40), dim=-1)
             occupancies = torch.sum(weights  * occupancy_pre_union, dim=-1)
         return occupancies, primitive_sdf, intersection_node_occupancies
   

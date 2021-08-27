@@ -11,6 +11,14 @@ class MarchingCubes:
         self.model_resolution = model_resolution
         self.eval_resolution = eval_resolution
         self.use_pytorch = use_pytorch
+        self.padding = 1
+
+    def add_padding(self, occupancies):
+        padded_dim = self.model_resolution+2*self.padding
+        padded_occupancies = np.zeros([padded_dim, padded_dim, padded_dim])
+        padded_occupancies[self.padding:-self.padding, self.padding:-self.padding, self.padding:-self.padding] = occupancies
+        return padded_occupancies
+
 
     def generate_testing_points(self):
         points = np.indices((self.model_resolution,self.model_resolution,self.model_resolution)).T.reshape(-1,3)
@@ -26,7 +34,7 @@ class MarchingCubes:
         if self.use_pytorch:
             points = torch.tensor(points).type(torch.float32).cuda()
         occupancies = np.concatenate([occupancy_function(pts) for pts in points], axis=0)
-        verts, faces = mcubes.marching_cubes(occupancies.reshape((self.model_resolution,self.model_resolution,self.model_resolution).transpose(2,1,0)), iso_value)
+        verts, faces = mcubes.marching_cubes(self.add_padding(occupancies.reshape((self.model_resolution,self.model_resolution,self.model_resolution).transpose(2,1,0))), iso_value)
         verts = ((verts - 0.5) / self.model_resolution) - 0.5
         return verts, faces 
 
@@ -40,7 +48,7 @@ class MarchingCubes:
         batch_verts = []
         batch_faces = []
         for i in range(occupancies.shape[0]):
-            verts, faces = mcubes.marching_cubes(occupancies[i].transpose(2,1,0), iso_value)
+            verts, faces = mcubes.marching_cubes(self.add_padding(occupancies[i].transpose(2,1,0)), iso_value)
             verts = ((verts - 0.5) / self.model_resolution) - 0.5
             batch_verts.append(verts)
             batch_faces.append(faces)
