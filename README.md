@@ -43,7 +43,7 @@ unzip dataset_small_v1.1.zip
 If you want to prepare data yourself (maybe you want to generate the watertight mesh etc.), please refer to [this link](https://github.com/autonomousvision/occupancy_networks/tree/master/external/mesh-fusion).
 
 ### Pre-Train Weights
-You can download the pre-trained weights from [there]()
+The original trained weights are no longer compatiable with the the restructred code (this repo) :( re-training is in progress (This may take some time). 
 
 ### Evaluate using pre-trian weights
 ```
