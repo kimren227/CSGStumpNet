@@ -12,7 +12,7 @@ class CSGStump(nn.Module):
         self.num_intersections = num_intersections
         self.sharpness = sharpness
 
-    def forward(self, sample_point_coordinates, primitive_parameters, intersection_layer_weights, union_layer_weights, is_training):
+    def forward(self, sample_point_coordinates, primitive_parameters, complement_layer_weights, intersection_layer_weights, union_layer_weights, is_training):
         B = sample_point_coordinates.shape[0]
         M = sample_point_coordinates.shape[1] # number of testing points
 
@@ -31,8 +31,10 @@ class CSGStump(nn.Module):
         cone_sdf = sdfCone(cone[:,:,:4], cone[:,:,4:7], cone[:,:,7:], sample_point_coordinates[:,:,:3]).squeeze(-1) #[B,K]
         sphere_sdf = sdfSphere(sphere[:,:,:4], sphere[:,:,4:7], sphere[:,:,7:], sample_point_coordinates[:,:,:3]).squeeze(-1) #[B,N,K]
 
-        # compute occupancies
         primitive_sdf = torch.cat([cylinder_sdf, box_sdf, cone_sdf, sphere_sdf], dim=-1)
+        # compute SDF complement
+        primitive_sdf = torch.einsum("bmk,bk -> bmk", primitive_sdf, complement_layer_weights)
+        # compute occupancies
         primitive_occupancies = torch.sigmoid(-1 * primitive_sdf * self.sharpness)
 
         # calculate intersections
@@ -58,7 +60,7 @@ class CSGStump(nn.Module):
                 weights = torch.softmax(occupancy_pre_union * (40), dim=-1)
             occupancies = torch.sum(weights  * occupancy_pre_union, dim=-1)
         return occupancies, primitive_sdf, intersection_node_occupancies
-  
+
 
 class CSGStumpConnectionHead(nn.Module):
     def __init__(self, feature_dim, num_primitives, num_intersections):
@@ -67,12 +69,16 @@ class CSGStumpConnectionHead(nn.Module):
         self.num_intersections = num_intersections
         self.feature_dim = feature_dim
         self.intersection_linear = nn.Linear(self.feature_dim * 8, self.num_primitives * self.num_intersections, bias=True)
+        self.complement_linear = nn.Linear(self.feature_dim * 8, self.num_primitives, bias=True)
         self.union_linear = nn.Linear(self.feature_dim * 8, self.num_intersections, bias=True)
 
     def forward(self, feature, is_training):
         # getting intersection layer connection weights
         intersection_layer_weights = self.intersection_linear(feature)
         intersection_layer_weights = intersection_layer_weights.view(-1, self.num_primitives, self.num_intersections) # [B, num_primitives, num_intersections]
+
+        complement_layer_weights = self.complement_linear(feature)
+        complement_layer_weights = complement_layer_weights.view(-1, self.num_primitives) # [B, num_primitives]
 
         # getting union layer connection weights
         union_layer_weights = self.union_linear(feature)
@@ -81,13 +87,15 @@ class CSGStumpConnectionHead(nn.Module):
         if not is_training:
             # during inference, we use descrtize connection weights to get interpretiable CSG relations
             intersection_layer_weights = (intersection_layer_weights>0).type(torch.float32)
+            complement_layer_weights = torch.sign(complement_layer_weights)
             union_layer_weights = (union_layer_weights>0).type(torch.float32)
         else:
             # during train, we use continues connection weights to get better gradients
             intersection_layer_weights = torch.sigmoid(intersection_layer_weights)
+            complement_layer_weights = torch.tanh(complement_layer_weights)
             union_layer_weights = torch.sigmoid(union_layer_weights)
 
-        return intersection_layer_weights, union_layer_weights
+        return complement_layer_weights, intersection_layer_weights, union_layer_weights
 
 class CSGStumpPrimitiveHead(nn.Module):
 
@@ -95,7 +103,7 @@ class CSGStumpPrimitiveHead(nn.Module):
         super(CSGStumpPrimitiveHead, self).__init__()
         self.num_primitives = num_primitives
         self.feature_dim = feature_dim
-        # we support 4 types of primitives, sphere, cylinder, cone, and box. 
+        # we support 4 types of primitives, sphere, cylinder, cone, and box.
         # Primitives are defined by Rotation, Translation and Intrinsic Parameter
         self.num_primitive_parameters_aggregated = 8+8+8+10 # Sphere (4+3+1), Cylinder (4+3+1), Cone (4+3+1), Box (4+3+3)
         self.num_type = 4
@@ -152,7 +160,7 @@ class CSGStumpNet(nn.Module):
     def forward(self, surface_pointcloud, sample_coordinates, is_training=True):
         feature = self.encoder(surface_pointcloud)
         code = self.decoder(feature)
-        intersection_layer_connections, union_layer_connections = self.connection_head(code, is_training=is_training)
+        complement_layer_weights, intersection_layer_connections, union_layer_connections = self.connection_head(code, is_training=is_training)
         primitive_parameters = self.primitive_head(code)
-        occupancies, primitive_sdfs, _ = self.csg_stump(sample_coordinates, primitive_parameters, intersection_layer_connections, union_layer_connections, is_training=is_training)
+        occupancies, primitive_sdfs, _ = self.csg_stump(sample_coordinates, primitive_parameters, complement_layer_weights, intersection_layer_connections, union_layer_connections, is_training=is_training)
         return occupancies, primitive_sdfs
