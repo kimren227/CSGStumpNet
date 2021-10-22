@@ -6,13 +6,13 @@ The official implementation of CSG-Stump: A Learning Friendly CSG-Like Represent
 ## Citation
 If you find our work interesting and benifits your research, please consider citing:
 
-	@article{ren2021csgstump,
+	@inproceedings{ren2021csg,
 	  title={CSG-Stump: A Learning Friendly CSG-Like Representation for Interpretable Shape Parsing},
-	  author={Daxuan Ren, Jianmin Zheng, Jianfei Cai, Jiatong Li, Haiyong Jiang, Zhongang Cai, Junzhe Zhang, Liang Pan, Mingyuan Zhang, Haiyu Zhao, Shuai Yi},
-	  journal={ICCV},
+	  author={Ren, Daxuan and Zheng, Jianmin and Cai, Jianfei and Li, Jiatong and Jiang, Haiyong and Cai, Zhongang and Zhang, Junzhe and Pan, Liang and Zhang, Mingyuan and Zhao, Haiyu and others},
+	  booktitle={Proceedings of the IEEE/CVF International Conference on Computer Vision},
+	  pages={12478--12487},
 	  year={2021}
 	}
-
 
 ## Setup
 ### Install envoriment:
