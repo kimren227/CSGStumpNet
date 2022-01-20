@@ -91,7 +91,7 @@ class CSGStumpConnectionHead(nn.Module):
 
 class CSGStumpPrimitiveHead(nn.Module):
 
-    def __init__(self, num_primitives, feature_dim):
+    def __init__(self, feature_dim, num_primitives):
         super(CSGStumpPrimitiveHead, self).__init__()
         self.num_primitives = num_primitives
         self.feature_dim = feature_dim
