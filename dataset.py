@@ -93,10 +93,6 @@ class ShapeNet(Dataset):
         sample_coordinates = samples["points"]
 
         sample_coordinates = (np.array([[0, 0, 1], [0, 1, 0], [-1, 0, 0]]).dot(sample_coordinates.T)).T
-        min_bound = sample_coordinates.min(axis=0)
-        max_bound = sample_coordinates.max(axis=0)
-        loc = (min_bound + max_bound)/2
-        scale = np.linalg.norm(max_bound - min_bound)
         sample_coordinates = sample_coordinates - loc 
         sample_coordinates = sample_coordinates / scale
 
