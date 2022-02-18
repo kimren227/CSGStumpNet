@@ -32,7 +32,7 @@ pip install tqdm
 
 ## Datasets and pre-trained weights
 ### Dataset
-We use the pre-prepared dataset from [OccNet](https://github.com/autonomousvision/occupancy_networks)(consider citing them), you can download the data by 
+You can use the pre-prepared dataset from [OccNet](https://github.com/autonomousvision/occupancy_networks)(consider citing them), you can download the data by 
 ```
 mkdir data
 cd data
@@ -43,19 +43,19 @@ unzip dataset_small_v1.1.zip
 If you want to prepare data yourself (maybe you want to generate the watertight mesh etc.), please refer to [this link](https://github.com/autonomousvision/occupancy_networks/tree/master/external/mesh-fusion).
 
 ### Pre-Train Weights
-The original trained weights are no longer compatiable with the the restructred code (this repo) :( re-training is in progress (This may take some time). 
+Please download pre-trained weights from this [google drive](https://drive.google.com/drive/folders/1QQIvPXreE_BECFP7Cnr3i-HV9iklm2gw?usp=sharing)
 
 ### Evaluate using pre-trian weights
 ```
-python eval.py --config_path ./configs/plane_256_256.json
+python eval.py --config_path ./configs/plane.json
 ```
 ### Train from stratch
 ```
-python train.py --config_path ./configs/plane_256_256.json
+python train.py --config_path ./configs/plane.json
 ```
 ### Evaluation
 ```
-python metrics.py --config_path ./configs/plane_256_256.json
+python metrics.py --config_path ./configs/plane.json
 ```
 
 ## License
