@@ -80,9 +80,27 @@ class ShapeNet(Dataset):
         surface_selection_index = np.random.randint(0, surface_pointcloud.shape[0], self.num_surface_points)
         surface_pointcloud = surface_pointcloud[surface_selection_index].astype(np.float32)
 
+        surface_pointcloud = (np.array([[0, 0, 1], [0, 1, 0], [-1, 0, 0]]).dot(surface_pointcloud.T)).T
+        min_bound = surface_pointcloud.min(axis=0)
+        max_bound = surface_pointcloud.max(axis=0)
+        loc = (min_bound + max_bound)/2
+        scale = np.linalg.norm(max_bound - min_bound)
+        surface_pointcloud = surface_pointcloud - loc
+        surface_pointcloud = surface_pointcloud / scale
+
         # Getting Sample Points
         samples = np.load(sample_file)
         sample_coordinates = samples["points"]
+
+        sample_coordinates = (np.array([[0, 0, 1], [0, 1, 0], [-1, 0, 0]]).dot(sample_coordinates.T)).T
+        min_bound = sample_coordinates.min(axis=0)
+        max_bound = sample_coordinates.max(axis=0)
+        loc = (min_bound + max_bound)/2
+        scale = np.linalg.norm(max_bound - min_bound)
+        sample_coordinates = sample_coordinates - loc 
+        sample_coordinates = sample_coordinates / scale
+
+
         occupancies = np.unpackbits(samples["occupancies"])
         samples = np.concatenate([sample_coordinates, occupancies.reshape(-1,1)], axis=-1)
 

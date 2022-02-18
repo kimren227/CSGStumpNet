@@ -54,7 +54,6 @@ def eval(config):
 
             generate_mesh(model, surface_pointcloud.transpose(2,1), config, test_iter)
             test_iter += 1 
-            exit()
 
         avg_test_loss_recon = avg_test_loss_recon / test_iter
         test_accuracy = avg_test_accuracy / test_iter
