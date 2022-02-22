@@ -1,6 +1,8 @@
 # CSGStumpNet
 The official implementation of CSG-Stump: A Learning Friendly CSG-Like Representation for Interpretable Shape Parsing
 
+Note that this is still an early stage research, and may not be suitable for precise modeling and reverse engineering.
+
 ### [Paper](https://arxiv.org/abs/666.666) |   [Project page](https://kimren227.github.io/projects/CSGStump/)
 
 ## Citation
