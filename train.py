@@ -157,7 +157,7 @@ def train(config):
                                                                                                             config.epoch, 
                                                                                                             time.time() - start_time, 
                                                                                                             avg_test_loss/test_iter_counter, 
-                                                                                                            avg_test_loss_recon / test_iter_counter, 
+                                                                                                            avg_test_loss_recon, 
                                                                                                             avg_test_loss_primitive/test_iter_counter, 
                                                                                                             test_accuracy, 
                                                                                                             test_recall, 
