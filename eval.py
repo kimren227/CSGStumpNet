@@ -55,14 +55,14 @@ def eval(config):
             generate_mesh(model, surface_pointcloud.transpose(2,1), config, test_iter)
             test_iter += 1 
 
-        avg_test_loss_recon = avg_test_loss_recon / test_iter
+        avg_test_loss_recon = avg_test_loss_recon/ test_iter
         test_accuracy = avg_test_accuracy / test_iter
         test_recall = avg_test_recall / test_iter
         test_fscore = 2*test_accuracy*test_recall/(test_accuracy + test_recall + 1e-6)
         print("Evaluating: time: %4.4f, loss_total: %.6f, loss_recon: %.6f, loss_primitive: %.6f, acc: %.6f, recall: %.6f, fscore: %.6f" % ( 
                                                                                                     time.time() - start_time, 
                                                                                                     avg_test_loss/test_iter, 
-                                                                                                    avg_test_loss_recon / test_iter, 
+                                                                                                    avg_test_loss_recon , 
                                                                                                     avg_test_loss_primitive/test_iter, 
                                                                                                     test_accuracy, 
                                                                                                     test_recall, 
